@@ -1,0 +1,19 @@
+{
+  "name": "todolist-js",
+  "version": "1.0.0",
+  "description": "ToDo List with Vanila JS",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/marinazonz/ToDoList.git"
+  },
+  "author": "Marina",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marinazonz/ToDoList/issues"
+  },
+  "homepage": "https://github.com/marinazonz/ToDoList#readme"
+}
