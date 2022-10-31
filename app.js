@@ -1,13 +1,10 @@
-"use strict";
-
 const greeting = document.querySelector(".greeting");
 const newToDoForm = document.querySelector("#new-todo-form");
 const divListToDo = document.querySelector(".list");
 const divItemToDo = document.querySelector(".todo-item");
-const divItemContent = document.querySelector(".todo-conten");
-
-//date
+const divItemContent = document.querySelector(".todo-content");
 const date = new Date();
+const time = date.getHours();
 
 window.onload = function () {
     //greeting
@@ -37,7 +34,7 @@ newToDoForm.addEventListener("submit", (e) => {
         createdAt: new Date().getTime(),
     };
 
-    toDoList.push(todo);
+    toDoList.unshift(todo);
 
     localStorage.setItem("todos", JSON.stringify(toDoList));
 
@@ -53,9 +50,11 @@ const renderTodos = function () {
     divListToDo.innerHTML = "";
 
     toDoList.forEach((todo) => {
-        const html = `<div class="todo-item">
+        const todoEl = document.createElement("div");
+        todoEl.classList.add("todo-item");
+        todoEl.innerHTML = `
                     <label>
-                        <input type="checkbox" id="inputCheckbox" />
+                        <input type="checkbox" class="inputCheckbox" />
                         <span class="bubble ${
                             todo.category === "business"
                                 ? "business"
@@ -65,7 +64,7 @@ const renderTodos = function () {
 
                     <div class="todo-content">
                         <input
-                            id="inputValue"
+                            class="inputField"
                             type="text"
                             value='${todo.content}'
                             readonly
@@ -75,29 +74,38 @@ const renderTodos = function () {
                     <div class="actions">
                             <button class="edit">Edit</button>
                             <button class="delete">Delete</button>
-                    </div>
-                </div>`;
+                    </div>`;
 
-        divListToDo.insertAdjacentHTML("afterbegin", html);
+        divListToDo.appendChild(todoEl);
 
-        const btnEditTodolist = document.querySelector(".edit");
-        const btnDeleteTodolist = document.querySelector(".delete");
-        const bubble = document.querySelector(".bubble");
+        const btnEditTodolist = todoEl.querySelector(".edit");
+        const btnDeleteTodolist = todoEl.querySelector(".delete");
+        const inputCheckbox = todoEl.querySelector(".inputCheckbox");
 
         //Delete todolist item
         btnDeleteTodolist.addEventListener("click", deletetodoListItem);
 
         //Edit todolist item
         btnEditTodolist.addEventListener("click", edittodoListItem);
+
+        //todo item done
+        inputCheckbox.addEventListener("click", todoItemDone);
+
+        //render changing in done items
+        if (todo.done != false) {
+            todoEl.classList.add("done");
+            inputCheckbox.checked = true;
+        } else {
+            todoEl.classList.remove("done");
+        }
     });
 };
 
-const deletetodoListItem = function (e) {
+const deletetodoListItem = function () {
     let current = document.querySelector(".delete");
     const element = current.parentNode.parentNode;
-    //console.log(e.path[2].children[1].childNodes[1].value);
 
-    let input = document.querySelector("#inputValue");
+    let input = document.querySelector(".inputField");
 
     element.remove();
 
@@ -111,18 +119,19 @@ const deletetodoListItem = function (e) {
 };
 
 const edittodoListItem = function (e) {
-    let current = document.querySelector(".edit");
+    const todoParent = e.target.closest(".todo-item");
 
-    console.log(current.parentNode);
+    const todoIndex = Array.prototype.indexOf.call(
+        todoParent.parentNode.children,
+        todoParent
+    );
 
-    //const input = current.parentNode.previousElementSibling.firstElementChild;
-    const input = e.path[2].children[1].childNodes[1];
-    // const input = e.target;
+    const input = todoParent.querySelector(".inputField");
+
     input.removeAttribute("readonly");
     input.focus();
 
-    const spanBubble = e.path[2].children[0].children[1];
-    // console.log(current.parentElement.previousElementSibling.previousElementSibling.lastElementChild)
+    const spanBubble = todoParent.querySelector(".bubble");
 
     if (spanBubble.classList.contains("personal")) {
         input.style.color = "#ea40a4";
@@ -138,21 +147,16 @@ const edittodoListItem = function (e) {
         input.style.fontSize = "1.125rem";
     }, 400);
 
-    input.addEventListener("blur", (e) => {
+    input.addEventListener("blur", () => {
         input.setAttribute("readonly", true);
-        console.log(e.target.value);
-        console.log(e);
-
-        //make localStorage works
-        //check correct pathes for edit
-        //localStorage.setItem("todos", JSON.stringify(toDoList));
+        const updatedTodo = toDoList[todoIndex];
+        updatedTodo.content = input.value;
+        toDoList[todoIndex] = updatedTodo;
+        localStorage.setItem("todos", JSON.stringify(toDoList));
     });
 };
 
 const greetingTime = function () {
-    let time = date.getHours();
-    console.log(time);
-
     greeting.innerHTML = "";
     const html = `<h2 class="title">
                         Good ${
@@ -177,4 +181,23 @@ const greetingTime = function () {
         //console.log(e.target.value);
         localStorage.setItem("username", JSON.stringify(e.target.value));
     });
+};
+
+const todoItemDone = function (e) {
+    const el = e.target.closest(".todo-item");
+
+    const todoIndex = Array.prototype.indexOf.call(el.parentNode.children, el);
+    const updatedTodo = toDoList[todoIndex];
+
+    if (updatedTodo.done != false) {
+        el.classList.remove("done");
+        updatedTodo.done = false;
+    } else {
+        el.classList.add("done");
+        updatedTodo.done = true;
+    }
+    console.log(updatedTodo);
+    toDoList[todoIndex] = updatedTodo;
+    console.log(toDoList[todoIndex]);
+    localStorage.setItem("todos", JSON.stringify(toDoList));
 };

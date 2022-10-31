@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/marinazonz/ToDoList/issues"
   },
-  "homepage": "https://github.com/marinazonz/ToDoList#readme"
+  "homepage": "https://github.com/marinazonz/ToDoList#readme",
+  "dependencies": {
+    "uid": "^2.0.1"
+  }
 }
